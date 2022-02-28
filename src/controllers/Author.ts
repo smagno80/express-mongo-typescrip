@@ -53,7 +53,7 @@ const deleteAuthor = async (req: Request, res: Response, next: NextFunction): Pr
     const authorId = req.params.authorId;
 
     return Author.findByIdAndDelete(authorId)
-        .then((author): Response<any, Record<string, any>> => (author ? res.status(201).json({ message: 'Record deleted' }) : res.status(404).json({ message: 'Record not found' })))
+        .then((author): Response<any, Record<string, any>> => (author ? res.status(201).json({ message: 'Author deleted' }) : res.status(404).json({ message: 'Author not found' })))
         .catch((error): Response<any, Record<string, any>> => res.status(500).json({ error }));
 };
 
