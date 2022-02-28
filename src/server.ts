@@ -1,8 +1,9 @@
-import express from 'express';
+import express, { NextFunction, Request } from 'express';
 import http from 'http';
 import mongoose from 'mongoose';
 import { config } from './config/config';
 import Logging from './library/Logging';
+import authorRoutes from './routers/Author';
 
 const router = express();
 
@@ -24,7 +25,7 @@ const StartServer = (): void => {
         /** Log the Request */
         Logging.info(`Incoming -> Method: [${req.method}] - Url: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
 
-        res.on('finish', () => {
+        res.on('finish', (): void => {
             /** Log the Response */
             Logging.info(`Outgoing -> Method: [${req.method}] - Url: [${req.url}] - IP: [${req.socket.remoteAddress}] - Status: [${res.statusCode}]`);
         });
@@ -36,7 +37,7 @@ const StartServer = (): void => {
     router.use(express.json());
 
     /** Rules of our API */
-    router.use((req, res, next) => {
+    router.use((req: Request, res: any, next: NextFunction): any => {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Aloow-Headrs', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
@@ -49,17 +50,18 @@ const StartServer = (): void => {
     });
 
     /** Routes */
+    router.use('/authors', authorRoutes);
 
     /** Healthcheck */
-    router.get('/ping', (req, res, next) => res.status(200).json({ message: 'pong' }));
+    router.get('/ping', (req: Request, res: any, next: NextFunction): any => res.status(200).json({ message: 'pong' }));
 
     /** Error handling */
-    router.use((req, res, next) => {
+    router.use((req: Request, res: any, next: NextFunction): any => {
         const error = new Error('Not found');
         Logging.error(error);
 
         return res.status(404).json({ message: error.message });
     });
 
-    http.createServer(router).listen(config.server.port, (): void => Logging.info(`Server started on port ${config.server.port}`));
+    http.createServer(router).listen(config.server.port, (): void => Logging.info(`Server started on port ${config.server.port}.`));
 };
